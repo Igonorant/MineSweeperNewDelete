@@ -121,15 +121,18 @@ void MemeField::Tile::SetNeighborMemeCount( int memeCount )
 	nNeighborMemes = memeCount;
 }
 
-MemeField::MemeField( const Vei2& center,int nMemes )
-	:
-	topLeft( center - Vei2( width * SpriteCodex::tileSize,height * SpriteCodex::tileSize ) / 2 )
+void MemeField::Initilize(const Vei2& center, int nMemes, int width_in, int height_in)
 {
+	width = width_in;
+	height = height_in;
+	topLeft = (center - Vei2(width * SpriteCodex::tileSize, height * SpriteCodex::tileSize) / 2);
 	assert( nMemes > 0 && nMemes < width * height );
 	std::random_device rd;
 	std::mt19937 rng( rd() );
 	std::uniform_int_distribution<int> xDist( 0,width - 1 );
 	std::uniform_int_distribution<int> yDist( 0,height - 1 );
+
+	field = new  Tile[width * height];
 
 	for( int nSpawned = 0; nSpawned < nMemes; ++nSpawned )
 	{
@@ -207,6 +210,11 @@ MemeField::State MemeField::GetState() const
 	return state;
 }
 
+void MemeField::DeleteField()
+{
+	delete[] field;
+}
+
 void MemeField::RevealTile( const Vei2& gridPos )
 {
 	Tile& tile = TileAt( gridPos );
@@ -273,15 +281,18 @@ int MemeField::CountNeighborMemes( const Vei2 & gridPos )
 	return count;
 }
 
-bool MemeField::GameIsWon() const
+bool MemeField::GameIsWon()
 {
-	for( const Tile& t : field )
+	for( int x = 0; x<width;x++)
 	{
-		if( (t.HasMeme() && !t.IsFlagged()) ||
-			(!t.HasMeme() && !t.IsRevealed()) )
-		{
-			return false;
+		for (int y = 0; x < height; y++) {
+			if ((field[x*height+y].HasMeme() && !field[x * height + y].IsFlagged()) ||
+				(!field[x * height + y].HasMeme() && !field[x * height + y].IsRevealed()))
+			{
+				return false;
+			}
 		}
 	}
+	DeleteField();
 	return true;
 }
