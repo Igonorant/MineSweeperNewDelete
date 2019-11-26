@@ -64,7 +64,7 @@ void Game::UpdateModel()
 					}
 				}
 
-				if (field->GetState() == MemeField::State::Fucked || field->GetState() == MemeField::State::Winrar) {
+				if (field->GetState() == MemeField::State::Lost || field->GetState() == MemeField::State::Winrar) {
 					state = State::SelectionMenu;
 					delete field;
 				}
